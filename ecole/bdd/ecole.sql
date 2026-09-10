@@ -83,12 +83,12 @@ INSERT INTO `course` (`id_course`, `name`, `start_date`, `end_date`, `id_teacher
 --
 
 DROP TABLE IF EXISTS `person`;
-CREATE TABLE IF NOT EXISTS `person` (
-  `id_person` int NOT NULL AUTO_INCREMENT,
-  `first_name` varchar(50) NOT NULL,
-  `last_name` varchar(50) NOT NULL,
-  `age` tinyint NOT NULL,
-  `id_address` int DEFAULT NULL,
+CREATE TABLE IF NOT EXISTS `person` ( -- créé une nouvelle table avec les colonnes suivantes :
+  `id_person` int NOT NULL AUTO_INCREMENT, --Une colonne appelée id_address, qui contient un nombre entier (int), qui ne peut jamais être vide (NOT NULL), et dont la valeur s'incrémente automatiquement toute seule (1, 2, 3...) à chaque nouvelle ligne (AUTO_INCREMENT)"
+  `first_name` varchar(50) NOT NULL, --Une colonne street, qui contient du texte de 80 caractères maximum (varchar(80)), jamais vide"
+  `last_name` varchar(50) NOT NULL, --même chose, mais 50 caractères maximum
+  `age` tinyint NOT NULL, --un petit nombre entier, jamais vide
+  `id_address` int DEFAULT NULL, --id_address qui identifie chaque ligne de façon unique — comme un numéro de sécurité sociale, il ne peut jamais y avoir deux lignes avec le même
   PRIMARY KEY (`id_person`),
   UNIQUE KEY `id_address` (`id_address`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

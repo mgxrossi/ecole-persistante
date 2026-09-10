@@ -12,6 +12,8 @@ from models.address import Address
 from models.course import Course
 from models.teacher import Teacher
 from models.student import Student
+from daos.teacher_dao import TeacherDao
+from daos.student_dao import StudentDao
 
 
 @dataclass
@@ -128,3 +130,24 @@ class School:
         william.add_course(anglais)
 
         michel.add_course(sport)
+
+#init_static() fabrique des objets à la main, avec des valeurs écrites en dur dans le code
+#init_from_db(), c'est l'équivalent, mais qui va vraiment lire dans la base au lieu d'inventer les données.
+    def init_from_db(self) -> None:
+        """Charge toutes les entités existantes depuis la base de données ecole."""
+
+        #On fabrique les 3 "outils" (les instances de DAO) dont on va avoir besoin
+        course_dao = CourseDao()
+        teacher_dao = TeacherDao()
+        student_dao = StudentDao()
+
+#On appelle teacher_dao.read_all() qui va interroger MySQL et et renvoyer la liste de tous les enseignants réellement présents en base
+        for teacher in teacher_dao.read_all():
+            self.add_teacher(teacher)
+            #Pour chacun, on l'ajoute à la liste interne de School avec self.add_teacher(teacher)
+
+        for student in student_dao.read_all():
+            self.add_student(student)
+
+        for course in course_dao.read_all():
+            self.add_course(course)

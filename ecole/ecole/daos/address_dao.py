@@ -131,3 +131,15 @@ class AddressDao(Dao[Address]):
             #Combien de lignes ont été supprimées ? Si address.id correspondait
             #à une addresse existante → 1 ligne supprimée → True. Sinon 0 → False.
         return success
+
+    def read_all(self) -> list[Address]:
+        addresses = []
+        with Dao.connection.cursor() as cursor:
+            sql = "SELECT * FROM address"
+            cursor.execute(sql)
+            records = cursor.fetchall()
+        for record in records:
+            address = Address(record['street'], record['city'], record['postal_code'])
+            address.id = record['id_address']
+            addresses.append(address)
+        return addresses

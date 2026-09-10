@@ -102,3 +102,23 @@ class TeacherDao(Dao[Teacher]):
             Dao.connection.commit()
             success = cursor.rowcount > 0
         return success
+
+    def read_all(self) -> list[Teacher]:
+        teachers = []
+        with Dao.connection.cursor() as cursor:
+            sql = "SELECT teacher.id_teacher, teacher.hiring_date, " \
+                  "       person.first_name, person.last_name, person.age, " \
+                  "       person.id_address " \
+                  "FROM teacher " \
+                  "JOIN person ON teacher.id_person = person.id_person"
+            cursor.execute(sql)
+            records = cursor.fetchall()
+        for record in records:
+            teacher = Teacher(record['first_name'], record['last_name'],
+                              record['age'], record['hiring_date'])
+            teacher.id = record['id_teacher']
+            if record['id_address'] is not None:
+                address_dao = AddressDao()
+                teacher.address = address_dao.read(record['id_address'])
+            teachers.append(teacher)
+        return teachers

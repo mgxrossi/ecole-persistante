@@ -20,8 +20,8 @@ class StudentDao(Dao[Student]):
         :return: le n° étudiant inséré en BD (0 si la création a échoué)
         """
         with Dao.connection.cursor() as cursor:
-            sql_person = "INSERT INTO person (first_name, last_name, age) " \ 
-                         "VALUES (%s, %s, %s)"
+            sql_person = ("INSERT INTO person (first_name, last_name, age) "
+                          "VALUES (%s, %s, %s)")
             """il y a héritage, je dois insérer d'abord dans person (la table "mère")"""
             cursor.execute(sql_person, (student.first_name, student.last_name, student.age))
             """ici j'utilise exactement les noms d'attributs trouvés (first_name, last_name, age) 
@@ -109,3 +109,33 @@ class StudentDao(Dao[Student]):
             Dao.connection.commit()
             success = cursor.rowcount > 0
         return success
+
+    def read_all(self) -> list[Student]:
+        students = []
+        with Dao.connection.cursor() as cursor:
+            sql = "SELECT student.student_nbr, " \
+                  "       person.first_name, person.last_name, person.age, " \
+                  "       person.id_address " \
+                  "FROM student " \
+                  "JOIN person ON student.id_person = person.id_person"
+            #Pourquoi c'est plus long ? Parce qu'on ne peut plus utiliser SELECT * bêtement
+            # — on doit assembler des colonnes venant de deux tables différentes
+            #teacher.id_teacher, teacher.hiring_date → viennent de la table teacher
+            #person.first_name, person.last_name, person.age, person.id_address → viennent de la table person
+            #pour chaque ligne de teacher, va chercher la ligne correspondante dans person (celle dont l'id coïncide), et fusionne les deux en une seule ligne de résultat."
+
+            cursor.execute(sql)
+            records = cursor.fetchall()
+        for record in records:
+            student = Student(record['first_name'], record['last_name'], record['age'])
+            student.student_nbr = record['student_nbr']
+
+            #même cascade qu'on avait déjà écrite dans TeacherDao.read()
+            #record['id_address'] n'est qu'un numéro pas une adresse,
+            #Si on veut que teacher.address contienne un vrai objet Address complet (rue, ville, code postal), il faut aller le chercher séparément, via AddressDao.
+            if record['id_address'] is not None:
+                #if car certain n ont pas d'addresse et comme ca ca plante pas si cest le cas
+                address_dao = AddressDao()
+                student.address = address_dao.read(record['id_address'])
+            students.append(student)
+        return students
