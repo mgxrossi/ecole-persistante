@@ -19,6 +19,7 @@ class Student(Person):
     """
     students_nb: ClassVar[int] = 0  # nb d'étudiants créés
     student_nbr: int = field(init=False)
+    """ça veut dire on ne le donne PAS au constructeur, il se calcule tout seul."""
     courses_taken: list[Course] = field(default_factory=list, init=False)
 
     def __post_init__(self):

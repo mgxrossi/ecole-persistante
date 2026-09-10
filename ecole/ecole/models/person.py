@@ -17,6 +17,13 @@ class Person(ABC):
     last_name: str
     age: int
     address: Address | None = field(default=None, init=False)
+    """init=False veut dire : cet attribut n'est PAS un paramètre du constructeur
+    C'est un attribut qu'on doit remplir après coup, manuellement
+    Pour que student.address (ou teacher.address) soit vraiment rempli avec un objet Address complet, il faudrait dans read() :
+    Récupérer aussi id_address dans la requête SQL
+    Si non NULL, appeler AddressDao().read(id_address) pour obtenir l'objet Address complet
+    Assigner : student.address = cet_objet_address
+    """
 
     def __str__(self) -> str:
         return f"{self.first_name} {self.last_name} ({self.age} ans)" + \

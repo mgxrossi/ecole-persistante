@@ -8,7 +8,7 @@ from models.teacher import Teacher
 from daos.dao import Dao
 from dataclasses import dataclass
 from typing import Optional
-
+from daos.address_dao import AddressDao  # nouvel import pour recup l'adresse complete from AdressDao
 
 @dataclass
 class TeacherDao(Dao[Teacher]):
@@ -40,7 +40,8 @@ class TeacherDao(Dao[Teacher]):
 
         with Dao.connection.cursor() as cursor:
             sql = "SELECT teacher.id_teacher, teacher.hiring_date, " \
-                  "       person.first_name, person.last_name, person.age " \
+                  "       person.first_name, person.last_name, person.age, " \
+                  "       person.id_address " \
                   "FROM teacher " \
                   "JOIN person ON teacher.id_person = person.id_person " \
                   "WHERE teacher.id_teacher = %s"
@@ -51,6 +52,14 @@ class TeacherDao(Dao[Teacher]):
             teacher = Teacher(record['first_name'], record['last_name'],
                                record['age'], record['hiring_date'])
             teacher.id = record['id_teacher']
+
+            # si cette personne a une adresse enregistrée, on va la chercher
+            if record['id_address'] is not None:
+                """On vérifie d'abord que la personne a bien une adresse"""
+                address_dao = AddressDao()
+                """On crée une "instance" de AddressDao, l'outil qui sait lire la table address"""
+                teacher.address = address_dao.read(record['id_address'])
+                """On appelle read() sur AddressDao, avec l'id trouvé. Ça renvoie un véritable objet Address (rue, ville, code postal), qu'on accroche à teacher.address"""
         else:
             teacher = None
 
